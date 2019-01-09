@@ -1,0 +1,12 @@
+
+
+#ifndef PROJECTNUM2_SOLUTION_H
+#define PROJECTNUM2_SOLUTION_H
+
+
+class Solution {
+
+};
+
+
+#endif //PROJECTNUM2_SOLUTION_H
