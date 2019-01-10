@@ -25,19 +25,22 @@ void *openSocketLoop(void *args) {
     while (true) {
         //  if (select(0, NULL, NULL, NULL, &timeVal) > 0) {
         /*Accept actual connection from the client */
+        setsockopt(openSocket->sockFd, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeVal, sizeof(timeVal));
         openSocket->newSockFd = accept(openSocket->sockFd,
                                        (struct sockaddr *) &openSocket->client_addr,
                                        (socklen_t *) &openSocket->client);
         cout<<"connect"<<endl;
         if (openSocket->newSockFd < 0) {
-            perror("ERROR on accept");
-            exit(1);
+            if (errno == EWOULDBLOCK)	{
+                cout << "timeout!" << endl;
+                return 0;
+            }	else	{
+                perror("connect error");
+                exit(3);
+            }
         }
         openSocket->clientHandler->handleCLient(openSocket->newSockFd);
-        // } else {
-        //   break;
-        // }
-        //}
+        close(openSocket->newSockFd);
     }
 }
 

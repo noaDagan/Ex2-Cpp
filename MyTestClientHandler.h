@@ -9,9 +9,7 @@
 #ifndef PROJECTNUM2_MYTESTCLIENTHANDLER_H
 #define PROJECTNUM2_MYTESTCLIENTHANDLER_H
 
-using namespace std;
 
-template<class PROBLEM, class SOLUTION>
 class MyTestClientHandler : public ClientHandler {
     Solver<string,string> *solver;
     CacheManager <string,string> *cacheManager;

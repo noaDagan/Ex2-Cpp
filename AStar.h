@@ -14,38 +14,18 @@ class ASTar : public Searcher<VALUE> {
     int numberOfNodesEvaluated;
 public:
     ASTar() {
+        this->numberOfNodesEvaluated=0;
     }
-
-//    vector<State<VALUE> *> sortVector(vector<State<VALUE> *> open, State<VALUE> *state) {
-//        vector<State<VALUE> *> resultVector;
-//        int vectorSize = open.size();
-//        int i = 0;
-//        if (vectorSize == 0) {
-//            resultVector.push_back(state);
-//        } else {
-//            State<VALUE> *temp = open[i];
-//            while ( (i < vectorSize)&&temp->getCost() <= state->getCost() ) {
-//                resultVector.push_back(open[i]);
-//                i++;
-//                temp = open[i];
-//            }
-//            resultVector.push_back(state);
-//        }
-//        while (i < vectorSize) {
-//            resultVector.push_back(open[i]);
-//            i++;
-//        }
-//        return resultVector;
-//    }
-
 
     VALUE search(Searchable<VALUE> *searchable) {
         vector<State<VALUE> *> open;
         vector<State<VALUE> *> close;
         vector<State<VALUE> *> successors;
-        map<State<VALUE>*,double > openMap;
-        map<State<VALUE>*,double > closeMap;
+        map<State<VALUE> *, double> costMap;
+        State<VALUE> *initialState = searchable->getInitialState();
         open.push_back(searchable->getInitialState());
+        costMap.insert(pair<State<VALUE> *, double>(initialState,
+                                                    initialState->getCost()));
         char *index = const_cast<char *>(searchable->getGoalState()->getState().c_str());
         index = strtok(index, ",");
         int iGoal = stoi(index);
@@ -55,10 +35,6 @@ public:
             State<VALUE> *currentState = open[0];
             open.erase(open.begin());
             close.push_back(currentState);
-            closeMap.insert(pair<State<VALUE>*,double>(currentState,currentState->getCost()));
-            if(currentState->getState()=="2,1"){
-                int x;
-            }
             this->numberOfNodesEvaluated++;
             if (currentState->equal(searchable->getGoalState())) {
                 return this->createBackTrace(searchable, currentState);
@@ -72,27 +48,20 @@ public:
                 index = strtok(NULL, ",");
                 int j = stoi(index);
                 double h = abs(i - iGoal) + abs(j - jGoal);
-                double cost = tempState->getCost() + currentState->getCost() + h;
-                int openIndex = this->isValuInVector(open, tempState);
-                int closeIndex = this->isValuInVector(close, tempState);
-                if (closeIndex >= 0){
-                    cost=closeMap.find(tempState)->second + currentState->getCost() + h;
-                    if(closeMap.find(tempState)->second<cost){
+                double cost = tempState->getCost() +
+                              (costMap.find(currentState))->second + h;
+                int openIndex = this->isValueInVector(open, tempState);
+                int closeIndex = this->isValueInVector(close, tempState);
+                if (costMap.count(tempState)) {
+                    if (costMap.find(tempState)->second < cost) {
                         continue;
+                    } else {
+                        costMap.insert(
+                                pair<State<VALUE> *, double>(tempState, cost));
+                        tempState->setCameFrom(currentState);
                     }
-                    openMap.insert(pair<State<VALUE>*,double>(tempState,cost));
-                    tempState->setCameFrom(currentState);
-                    open.push_back(tempState);
-                } else if (openIndex >= 0) {
-                    cost=tempState->getCost()+closeMap.find(currentState)->second + h;
-                    if(openMap.find(tempState)->second <cost){
-                        continue;
-                    }
-                    openMap.insert(pair<State<VALUE>*,double>(tempState,cost));
-                    tempState->setCameFrom(currentState);
-                    open.push_back(tempState);
                 } else {
-                    openMap.insert(
+                    costMap.insert(
                             pair<State<VALUE> *, double>(tempState, cost));
                     tempState->setCameFrom(currentState);
                     open.push_back(tempState);
@@ -101,7 +70,8 @@ public:
         }
     }
 
-    int isValuInVector(vector<State<VALUE> *> open, State<VALUE> *state) {
+
+    int isValueInVector(vector<State<VALUE> *> open, State<VALUE> *state) {
         int vectorSize = open.size();
         for (int i = 0; i < vectorSize; ++i) {
             if (state->equal(open[i])) {
@@ -116,8 +86,7 @@ public:
         return this->numberOfNodesEvaluated;
     }
 
-    VALUE
-    createBackTrace(Searchable<VALUE> *searchable, State<VALUE> *goalState) {
+    VALUE createBackTrace(Searchable<VALUE> *searchable, State<VALUE> *goalState) {
         string result = "";
         State<VALUE> *startState = searchable->getInitialState();
         while (!goalState->equal(startState)) {
@@ -138,7 +107,7 @@ public:
                 result = "Down, " + result;
             } else if (jCurr > jPrev) {
                 result = "Right, " + result;
-            } else if (iPrev < iCurr) {
+            } else if (iPrev > iCurr) {
                 result = "Up, " + result;
             } else if (jCurr < jPrev) {
                 result = "Left, " + result;

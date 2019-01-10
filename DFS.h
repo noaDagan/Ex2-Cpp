@@ -21,29 +21,32 @@ public:
         this->numberOfNodesEvaluated = 0;
     }
 
-    void DFSRecursive(State<VALUE>* state,unordered_set<State<VALUE> *> close,Searchable<VALUE> *searchable) {
+    void DFSRecursive(State<VALUE> *state, unordered_set<State<VALUE> *> close,
+                      Searchable<VALUE> *searchable) {
         vector<State<VALUE> *> successors;
-        close.insert(state);
+        State<VALUE> *tempState;
         this->numberOfNodesEvaluated++;
-//        if (state->equal(searchable->getGoalState())) {
-//            return state;
-//        }
+        if(searchable->getGoalState()->equal(state)) {
+            return;
+        }
         successors = searchable->getAllPossibleStates(state);
         for (int i = 0; i < successors.size(); i++) {
-            if (!close.count(successors[i])) {
-                State<VALUE> *tempState = successors[i];
+            tempState = successors[i];
+            if ((!close.count(tempState))){
+                close.insert(tempState);
                 tempState->setCameFrom(state);
-                 DFSRecursive(tempState, close, searchable);
-            }
 
+            }
         }
+        DFSRecursive(tempState, close, searchable);
     }
+
     VALUE search(Searchable<VALUE> *searchable) {
         unordered_set<State<VALUE> *> close;
-        State<VALUE>* initilateState = searchable->getInitialState();
-        //close.insert(initilateState);
-        this->DFSRecursive(initilateState,close,searchable);
-        return this->createBackTrace(searchable,searchable->getGoalState());
+        State<VALUE> *initState = searchable->getInitialState();
+        close.insert(initState);
+        this->DFSRecursive(initState, close, searchable);
+        return this->createBackTrace(searchable, searchable->getGoalState());
     }
 
     int getNumberOfNodesEvaluated() {
@@ -51,7 +54,8 @@ public:
 
     }
 
-    VALUE createBackTrace(Searchable<VALUE> *searchable, State<VALUE> *goalState) {
+    VALUE
+    createBackTrace(Searchable<VALUE> *searchable, State<VALUE> *goalState) {
         string result = "";
         State<VALUE> *startState = searchable->getInitialState();
         while (!goalState->equal(startState)) {
@@ -72,19 +76,18 @@ public:
                 result = "Down, " + result;
             } else if (jCurr > jPrev) {
                 result = "Right, " + result;
-            } else if (iPrev < iCurr) {
+            } else if (iPrev > iCurr) {
                 result = "Up, " + result;
             } else if (jCurr < jPrev) {
                 result = "Left, " + result;
             }
 
-            goalState=goalState->getCameFrom();
+            goalState = goalState->getCameFrom();
         }
         int resultLen = result.length();
         result = result.substr(0, resultLen - 2);
         return result;
     }
-
 
 
 };

@@ -36,7 +36,7 @@ public:
                 result = "Down, " + result;
             } else if (jCurr > jPrev) {
                 result = "Right, " + result;
-            } else if (iPrev < iCurr) {
+            } else if (iPrev > iCurr) {
                 result = "Up, " + result;
             } else if (jCurr < jPrev) {
                 result = "Left, " + result;
@@ -58,16 +58,11 @@ public:
             resultVector.push_back(state);
         } else {
             State<VALUE> *temp = open[i];
-            while ( (i < vectorSize)&&temp->getCost() <= state->getCost() ) {
-                resultVector.push_back(open[i]);
-                i++;
-                temp = open[i];
+            if (state->getCost() < temp->getCost()) {
+                resultVector.push_back(state);
+            } else {
+                resultVector.push_back(temp);
             }
-            resultVector.push_back(state);
-        }
-        while (i < vectorSize) {
-            resultVector.push_back(open[i]);
-            i++;
         }
         return resultVector;
     }
@@ -87,11 +82,9 @@ public:
             }
             successors = searchable->getAllPossibleStates(currentState);
             for (int i = 0; i < successors.size(); i++) {
-                if (!close.count(successors[i])) {
-                    State<VALUE> *tempState = successors[i];
+                State<VALUE> *tempState = successors[i];
+                if (!close.count(tempState)) {
                     tempState->setCameFrom(currentState);
-                    tempState->setCost(
-                            tempState->getCost() + currentState->getCost());
                     open = sortVector(open, tempState);
                 }
             }

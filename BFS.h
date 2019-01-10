@@ -38,13 +38,23 @@ public:
             }
             successors = searchable->getAllPossibleStates(currentState);
             for (int i = 0; i < successors.size(); i++) {
-                if (!close.count(successors[i])) {
+                if (!close.count(successors[i])&&(!this->isValuInVector(open,successors[i]))) {
                     State<VALUE> *tempState = successors[i];
                     tempState->setCameFrom(currentState);
                     open.push_back(tempState);
                 }
             }
         }
+    }
+    bool isValuInVector(vector<State<VALUE> *> open, State<VALUE> *state) {
+        int vectorSize = open.size();
+        for (int i = 0; i < vectorSize; ++i) {
+            if (state->equal(open[i])) {
+                return true;
+            }
+
+        }
+        return false;
     }
 
 
@@ -74,7 +84,7 @@ public:
                 result = "Down, " + result;
             } else if (jCurr > jPrev) {
                 result = "Right, " + result;
-            } else if (iPrev < iCurr) {
+            } else if (iPrev > iCurr) {
                 result = "Up, " + result;
             } else if (jCurr < jPrev) {
                 result = "Left, " + result;
