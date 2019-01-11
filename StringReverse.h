@@ -6,9 +6,14 @@
 
 using namespace std;
 
-class StringReverse : public Solver <string,string> {
+class StringReverse : public Solver<string, string> {
 public:
+    //Constructor
     StringReverse();
+
+    /**
+     * The function receive a string as problem and return a reverse string
+     */
     string solve(string problem);
 };
 
