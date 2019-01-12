@@ -70,7 +70,7 @@ public:
     }
 
 
-    **
+    /**
     * Thr function receive a problem and solution and save them.
     */
     void saveSolution(string problem, string solution) {

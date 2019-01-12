@@ -93,6 +93,7 @@ public:
      */
     vector<State<string> *> getAllPossibleStates(State<string> *state) {
         vector<State<string> *> possibleStates;
+        State<string> *tempState;
         //Get the state index
         string name = state->getState();
         char *index = const_cast<char *>(name.c_str());
@@ -103,28 +104,40 @@ public:
         int sizeOfRow = this->matrixArray[i].size();
         //If the index is not in the first row add to the vector the state above the state received
         if (i != 0) {
-
-            possibleStates.push_back(this->matrixArray[i - 1][j]);
+            tempState = this->matrixArray[i - 1][j];
+            if (tempState->getCost() != -1) {
+                possibleStates.push_back(tempState);
+            }
         }
         //If the index is not in the right most col add to the vector the state right to the state received
         if (j != 0) {
-            possibleStates.push_back(this->matrixArray[i][j - 1]);
+            tempState = this->matrixArray[i][j - 1];
+            if (tempState->getCost() != -1) {
+                possibleStates.push_back(tempState);
+            }
         }
         //If the index is not in the last col add to the vector the state below the state received
         if (j < sizeOfRow - 1) {
-            possibleStates.push_back(this->matrixArray[i][j + 1]);
+            tempState = this->matrixArray[i][j + 1];
+            if (tempState->getCost() != -1) {
+                possibleStates.push_back(tempState);
+            }
         }
         //If the index is not in the first row add to the vector the state above the state received
         if (i < this->countRow - 1) {
-            possibleStates.push_back(this->matrixArray[i + 1][j]);
+            tempState = this->matrixArray[i + 1][j];
+            if (tempState->getCost() != -1) {
+                possibleStates.push_back(tempState);
+            }
         }
         return possibleStates;
     }
+
     //Distructor
     ~Matrix() {
-        for (int i = 0; i <this->matrixArray.size() ; ++i) {
-            vector<State<string> *> temp=this->matrixArray[i];
-            for (int j = 0; j <temp.size() ; ++j) {
+        for (int i = 0; i < this->matrixArray.size(); ++i) {
+            vector<State<string> *> temp = this->matrixArray[i];
+            for (int j = 0; j < temp.size(); ++j) {
                 delete temp[j];
             }
         }
